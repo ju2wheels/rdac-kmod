@@ -1,0 +1,29 @@
+diff -up source/Makefile.fixredhat source/Makefile
+--- source/Makefile.fixredhat	2011-06-20 11:47:25.000000000 -0400
++++ source/Makefile	2012-02-22 11:06:58.733463567 -0500
+@@ -29,8 +29,8 @@ OS_VER := $(shell uname -r)
+ HOST_TYPE := $(shell uname -m)
+ IS_SMP := $(shell (uname -v | grep -c "SMP"))
+ # Kernel Distribution (either REDHAT or SUSE)
+-DIST := $(shell (if [ -f /etc/redhat-release ]; then echo REDHAT; else echo SUSE; fi))
+-RHEL6_FLAG := $(shell (if [ -f /etc/redhat-release ]; then cat /etc/redhat-release | grep -c 'release 6'; else echo 0; fi))
++DIST := $(shell (if [ -e /etc/redhat-release ]; then echo REDHAT; else echo SUSE; fi))
++RHEL6_FLAG := $(shell (if [ -e /etc/redhat-release ]; then cat /etc/redhat-release | grep -c 'release 6'; else echo 0; fi))
+ SLES11_FLAG := $(shell ((cat /etc/SuSE-release 2> /dev/null | grep VERSION | grep "11" | wc -l) ))
+ KDUMP_FLAG := $(shell (/bin/rpm -qa | grep kexec-tools | wc -l))
+ X64_EFISUPPORT := $(shell (if [ -d /boot/efi/efi ]; then echo 1; else echo 0; fi))
+@@ -183,14 +183,6 @@ kernelsrccheck:
+ 	@if [ $(KERNEL_SRC_CHK_FLAG) -eq 0 ]; then echo "Kernel source is not installed"; exit 1; fi
+ 
+ copyfiles :
+-	@install -o root -g root -m 0644 -D $(OS_VER)/mppVhba.ko $(DEST_DIR)/lib/modules/$(OS_VER)/kernel/drivers/scsi/mppVhba.ko
+-	@install -o root -g root -m 0644 -D $(OS_VER)/mppUpper.ko $(DEST_DIR)/lib/modules/$(OS_VER)/kernel/drivers/scsi/mppUpper.ko
+-	@if [ $(SLES11_FLAG) -ne 1 ]; then \
+-	if [ "$(DIST)" == "SUSE" -a $(KDUMP_STATUS) -eq 1 -a $(KERNEL_DUMP_SRC_CHK_FLAG) -eq 1 ]; then \
+-		install -o root -g root -m 0644 -D $(KERNEL_DUMP_VER)/mppVhba.ko $(DEST_DIR)/lib/modules/$(KERNEL_DUMP_VER)/kernel/drivers/scsi/mppVhba.ko; \
+-		install -o root -g root -m 0644 -D $(KERNEL_DUMP_VER)/mppUpper.ko $(DEST_DIR)/lib/modules/$(KERNEL_DUMP_VER)/kernel/drivers/scsi/mppUpper.ko; \
+-	fi; \
+-	fi
+ 	@install -o root -g root -m 0500 -D genuniqueid $(DEST_DIR)/opt/mpp/genuniqueid
+ 	@install -o root -g root -m 0500 -D mppSupport $(DEST_DIR)/opt/mpp/mppSupport
+ 	@install -o root -g root -m 0500 -D lsvdev $(DEST_DIR)/opt/mpp/lsvdev
